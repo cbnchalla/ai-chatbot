@@ -8,6 +8,18 @@ const components: Partial<Components> = {
   // @ts-expect-error
   code: CodeBlock,
   pre: ({ children }) => <>{children}</>,
+  p: ({ children, ...props }) => {
+    // If the only child is a <pre>, return it directly to avoid <p><pre/></p>
+    if (
+      Array.isArray(children) &&
+      children.length === 1 &&
+      (children[0]?.type === 'pre' ||
+        children[0]?.props?.className?.includes('not-prose'))
+    ) {
+      return <>{children}</>;
+    }
+    return <p {...props}>{children}</p>;
+  },
   ol: ({ node, children, ...props }) => {
     return (
       <ol className="list-decimal list-outside ml-4" {...props}>

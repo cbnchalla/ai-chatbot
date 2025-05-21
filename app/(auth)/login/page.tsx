@@ -1,76 +1,36 @@
 'use client';
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useActionState, useEffect, useState } from 'react';
-import { toast } from '@/components/toast';
-
-import { AuthForm } from '@/components/auth-form';
-import { SubmitButton } from '@/components/submit-button';
-
-import { login, type LoginActionState } from '../actions';
-import { useSession } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
 
 export default function Page() {
-  const router = useRouter();
-
-  const [email, setEmail] = useState('');
-  const [isSuccessful, setIsSuccessful] = useState(false);
-
-  const [state, formAction] = useActionState<LoginActionState, FormData>(
-    login,
-    {
-      status: 'idle',
-    },
-  );
-
-  const { update: updateSession } = useSession();
-
-  useEffect(() => {
-    if (state.status === 'failed') {
-      toast({
-        type: 'error',
-        description: 'Invalid credentials!',
-      });
-    } else if (state.status === 'invalid_data') {
-      toast({
-        type: 'error',
-        description: 'Failed validating your submission!',
-      });
-    } else if (state.status === 'success') {
-      setIsSuccessful(true);
-      updateSession();
-      router.refresh();
-    }
-  }, [state.status]);
-
-  const handleSubmit = (formData: FormData) => {
-    setEmail(formData.get('email') as string);
-    formAction(formData);
-  };
-
   return (
-    <div className="flex h-dvh w-screen items-start pt-12 md:pt-0 md:items-center justify-center bg-background">
-      <div className="w-full max-w-md overflow-hidden rounded-2xl flex flex-col gap-12">
-        <div className="flex flex-col items-center justify-center gap-2 px-4 text-center sm:px-16">
-          <h3 className="text-xl font-semibold dark:text-zinc-50">Sign In</h3>
-          <p className="text-sm text-gray-500 dark:text-zinc-400">
-            Use your email and password to sign in
+    <div className="flex min-h-screen flex-col justify-center items-center bg-background">
+      <div className="mx-auto w-full max-w-md space-y-8 rounded-2xl border border-border bg-card p-8 shadow-lg">
+        <div className="flex flex-col items-center space-y-2 text-center">
+          <h1 className="text-2xl font-bold tracking-tight">
+            Sign in to your account
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Continue with your Google account to access the app.
           </p>
         </div>
-        <AuthForm action={handleSubmit} defaultEmail={email}>
-          <SubmitButton isSuccessful={isSuccessful}>Sign in</SubmitButton>
-          <p className="text-center text-sm text-gray-600 mt-4 dark:text-zinc-400">
-            {"Don't have an account? "}
-            <Link
-              href="/register"
-              className="font-semibold text-gray-800 hover:underline dark:text-zinc-200"
+        <div className="flex flex-col gap-4">
+          <button
+            type="button"
+            onClick={() => signIn('google')}
+            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          >
+            <svg
+              className="mr-2 h-5 w-5"
+              aria-hidden="true"
+              fill="currentColor"
+              viewBox="0 0 24 24"
             >
-              Sign up
-            </Link>
-            {' for free.'}
-          </p>
-        </AuthForm>
+              <path d="M21.805 10.023h-9.18v3.954h5.262c-.226 1.2-1.36 3.52-5.262 3.52-3.168 0-5.75-2.62-5.75-5.85s2.582-5.85 5.75-5.85c1.8 0 3.012.77 3.705 1.43l2.53-2.46C17.09 3.67 15.13 2.7 12.625 2.7 7.98 2.7 4.25 6.43 4.25 11.075s3.73 8.375 8.375 8.375c4.825 0 8.025-3.39 8.025-8.175 0-.55-.06-1.1-.17-1.65z" />
+            </svg>
+            Continue with Google
+          </button>
+        </div>
       </div>
     </div>
   );
